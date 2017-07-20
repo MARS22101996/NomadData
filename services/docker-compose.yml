@@ -1,0 +1,50 @@
+version: '2'
+services: 
+  mongodb:
+    image: mongo:latest
+    environment:
+       - MONGO_DATA_DIR=/data/db
+       - MONGO_LOG_DIR=/dev/null
+    volumes:
+       - ./data/db:/etc/data/db
+    ports:
+       - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    networks:
+      microservices-network:
+
+  api-gateway:
+    build:
+      context: ./msa-api-gateway/src/ApiGateway
+      dockerfile: Dockerfile
+    image: api-gateway 
+    environment:
+       - SERVICE_IGNORE=ignore
+    ports:
+       - '5008:5008'
+    networks:
+      microservices-network:
+
+  ui:
+    build:
+      context: ./msa-task-manager-ui/TaskManagerUI/src/TaskManagerUI
+      dockerfile: Dockerfile
+    image: ui
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - SERVICE_IGNORE=ignore
+    ports:
+        - '5007:5007'
+    networks:
+      microservices-network:
+   
+networks:
+  microservices-network:
+    driver: bridge
+    
+
+
+
+
+
+
